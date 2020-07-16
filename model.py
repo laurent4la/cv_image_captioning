@@ -52,7 +52,7 @@ class DecoderRNN(nn.Module):
         features - embedded image feature vector
         captions - caption tensors (torch.Tensor(caption).long() see in data_loader __getitem__)
         """
-
+        captions = captions[:, :-1]
         # transforming a sequence of words (caption) into a sequence of numerical values
         # a vector of "embed_size" numbers where each number maps to a specific word in our vocabulary
         embedded = self.embedding(captions)
@@ -77,7 +77,8 @@ class DecoderRNN(nn.Module):
             lstm_outputs = lstm_outputs.squeeze(1)
             out = self.linear(lstm_outputs)
             last_pick = out.max(1)[1]
-            output_sentence.append(last_pick.item())
             inputs = self.embedding(last_pick).unsqueeze(1)
+            output_sentence.append(last_pick.item())
+
 
         return output_sentence
