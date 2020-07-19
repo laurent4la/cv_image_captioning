@@ -2,11 +2,16 @@
 
 Simple image captioning system to automatically describe the content of an image using a Sequence to Sequence model
 
+Note:
+
+The pretrained folder contains a different version that could be directly implemented.
+Check "the "pretrained/README.md #usage" section for steps to implement this solution.
+which comes from this project: https://github.com/yunjey/pytorch-tutorial/tree/master/tutorials/03-advanced/image_captioning
+
 ## Model
 The model implemented is based on Show and Tell: A Neural Image Caption Generator.
 
 LSTM model combined with a CNN image embedder and word embeddings.
-
 
 ## Training
 At every time step, we look at the current caption word as input and combine it with the hidden state of the LSTM cell to produce an output.
@@ -36,4 +41,6 @@ log_file = 'training_log.txt'       # name of file with saved training loss and 
 
 ## Results
 
-Checkout the folder results
+Checkout the folder results:
+
+https://github.com/laurent4la/cv_image_captioning/blob/master/results/trainin_2020_07_16.txt

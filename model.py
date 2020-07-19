@@ -27,7 +27,8 @@ class DecoderRNN(nn.Module):
         :param vocab_size: size of vocabulary
         """
         super(DecoderRNN, self).__init__()
-
+        self.num_layers = num_layers
+        self.hidden_size = hidden_size
         # an Embedding module containing vocab_size tensors of size embed_size
         # The input to the module is a list of indices,
         # and the output is the corresponding word embeddings.
@@ -71,14 +72,16 @@ class DecoderRNN(nn.Module):
 
     def sample(self, inputs, states=None, max_len=20):
         " accepts pre-processed image tensor (inputs) and returns predicted sentence (list of tensor ids of length max_len) "
-        output_sentence = []
+        caption = []
+        # initialize the hidden state and send it to the same device as the inputs
+        hidden = (torch.randn(self.num_layers, 1, self.hidden_size).to(inputs.device),
+                  torch.randn(self.num_layers, 1, self.hidden_size).to(inputs.device))
         for i in range(max_len):
-            lstm_outputs, states = self.lstm(inputs, states)
-            lstm_outputs = lstm_outputs.squeeze(1)
-            out = self.linear(lstm_outputs)
-            last_pick = out.max(1)[1]
-            inputs = self.embedding(last_pick).unsqueeze(1)
-            output_sentence.append(last_pick.item())
-
-
-        return output_sentence
+            lstm_out, hidden = self.lstm(inputs, hidden) # batch_size=1, sequence length=1 ->1,1,embedsize
+            outputs = self.linear(lstm_out)            # 1,1,vocab_size
+            outputs = outputs.squeeze(1)                     # 1,vocab_size
+            wordid  = outputs.argmax(dim=1)                  # 1
+            caption.append(wordid.item())
+            # prepare input for next iteration
+            inputs = self.embedding(wordid.unsqueeze(0))  # 1,1->1,1,embed_size
+        return caption
